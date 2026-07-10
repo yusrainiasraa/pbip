@@ -2,7 +2,6 @@ import streamlit as st
 import zipfile
 import io
 import os
-import shutil
 
 st.set_page_config(page_title="PBIX to PBIP Converter", layout="centered")
 
@@ -16,7 +15,8 @@ if uploaded_file is not None:
     # Ambil nama file asli tanpa ekstensi
     base_name = os.path.splitext(uploaded_file.name)[0]
     
-    st.info(force_refresh=True, body=f"Memproses file: **{uploaded_file.name}**...")
+    # PERBAIKAN: Parameter st.info disederhanakan agar tidak error
+    st.info(f"Memproses file: **{uploaded_file.name}**...", icon="⏳")
 
     # Buat buffer di memori untuk menyimpan file ZIP hasil konversi
     zip_buffer = io.BytesIO()
@@ -43,7 +43,7 @@ if uploaded_file is not None:
                         # Masuk ke folder .SemanticModel
                         new_path = f"{base_name}.SemanticModel/{item}"
                     elif item == "Version":
-                        # File versi ditaruh di root atau di semantic model (biasanya di semantic model)
+                        # File versi ditaruh di semantic model
                         new_path = f"{base_name}.SemanticModel/{item}"
                     else:
                         # File lainnya ditaruh di root folder utama
@@ -52,8 +52,7 @@ if uploaded_file is not None:
                     # Tulis file ke dalam ZIP baru
                     output_zip.writestr(new_path, file_data)
                 
-                # Tambahkan file utama '.pbip' kosong sebagai penanda project (metadata dummy)
-                # Di Power BI asli, ini berisi JSON metadata proyek.
+                # Tambahkan file utama '.pbip' kosong sebagai penanda project
                 pbip_metadata = '{\n  "version": "1.0",\n  "settings": {}\n}'
                 output_zip.writestr(f"{base_name}.pbip", pbip_metadata)
 
